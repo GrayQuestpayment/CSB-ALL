@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #14283D;
+      --ink-2: #1E3A57;
+      --ink-line: #2A4866;
+      --paper: #F4F6F7;
+      --surface: #FFFFFF;
+      --rule: #DCE3E8;
+      --text: #18232E;
+      --muted: #5E6B78;
+      --accent: #0E7C66;
+      --accent-dark: #0A5E4D;
+      --accent-soft: #E2F1EC;
+      --danger: #B42318;
+      --danger-soft: #FDECEA;
+      --radius: 6px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: var(--paper);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .hidden { display: none !important; }
+    button { font: inherit; cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .muted { color: var(--muted); }
+
+    /* ---------- Buttons and notices ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid transparent; border-radius: var(--radius);
+      padding: 10px 16px; font-weight: 600; white-space: nowrap;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-block { width: 100%; }
+    .btn-ghost { background: transparent; border-color: var(--rule); color: var(--text); }
+    .btn-ghost:hover { background: var(--paper); }
+    .btn-link-danger { background: none; border: none; color: var(--danger); padding: 4px 8px; font-weight: 600; }
+    .btn-link-danger.armed { background: var(--danger); color: #fff; border-radius: var(--radius); }
+    .notice { margin-top: 16px; padding: 12px 14px; border-radius: var(--radius); font-size: 14px; }
+    .notice.error { background: var(--danger-soft); color: var(--danger); }
+    .notice.ok { background: var(--accent-soft); color: var(--accent-dark); }
+
+    /* ---------- Loading ---------- */
+    .center { min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+
+    /* ---------- Login ---------- */
+    .login {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+      background-color: var(--paper);
+      background-image: repeating-linear-gradient(to bottom, transparent 0 31px, rgba(20, 40, 61, .07) 31px 32px);
+    }
+    .login-panel {
+      width: 100%; max-width: 400px; background: var(--surface);
+      border: 1px solid var(--rule); border-radius: 8px; padding: 36px 32px 32px;
+    }
+    .mark {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: var(--radius);
+      background: var(--ink); color: #fff; font-weight: 700; font-size: 14px; letter-spacing: .04em;
+    }
+    .login-panel h1 { font-size: 30px; line-height: 1.15; margin: 20px 0 6px; font-weight: 600; letter-spacing: -.01em; }
+    .login-panel .lead { margin: 0 0 24px; color: var(--muted); }
+    .account { border: 1px solid var(--rule); border-radius: var(--radius); padding: 12px 14px; background: var(--paper); margin-bottom: 16px; }
+    .account .k { font-size: 13px; color: var(--muted); }
+    .account .v { font-weight: 600; word-break: break-all; }
+
+    /* ---------- App shell ---------- */
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 248px; flex-shrink: 0; background: var(--ink); color: #C9D4DF;
+      display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+    }
+    .side-brand { display: flex; align-items: center; gap: 10px; padding: 18px; border-bottom: 1px solid var(--ink-line); color: #fff; font-weight: 600; }
+    .side-brand .mark { width: 32px; height: 32px; font-size: 11px; background: var(--accent); }
+    .nav { flex: 1; overflow-y: auto; padding: 10px; }
+    .nav-group { font-size: 12px; color: #8193A6; padding: 14px 12px 6px; }
+    .nav button {
+      display: block; width: 100%; text-align: left; background: none; border: none; color: inherit;
+      padding: 10px 12px; border-radius: var(--radius); font-weight: 500; font-size: 14px;
+    }
+    .nav button:hover { background: var(--ink-2); color: #fff; }
+    .nav button.active { background: var(--accent); color: #fff; }
+    .side-foot { padding: 14px 18px; border-top: 1px solid var(--ink-line); font-size: 13px; }
+    .side-foot .who { color: #fff; font-weight: 600; word-break: break-all; }
+    .side-foot .role { color: #8193A6; }
+    .scrim { display: none; }
+
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      display: flex; align-items: center; gap: 12px; padding: 14px 28px;
+      background: var(--surface); border-bottom: 1px solid var(--rule); position: sticky; top: 0; z-index: 5;
+    }
+    .topbar h2 { margin: 0; font-size: 20px; font-weight: 600; flex: 1; }
+    .menu-btn { display: none; }
+    .content { padding: 28px; max-width: 1100px; width: 100%; }
+    .panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 24px; }
+    .panel h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
+    .panel p { margin: 0; max-width: 64ch; }
+
+    /* ---------- User access ---------- */
+    .form-row { display: grid; grid-template-columns: 1.4fr 1fr auto; gap: 12px; align-items: end; margin-top: 18px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+    input[type=text], input[type=email] {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--rule); border-radius: var(--radius);
+      font: inherit; background: #fff; color: var(--text);
+    }
+    input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 8px; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; font-weight: 600; color: var(--muted); font-size: 13px; padding: 10px 12px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+    td { padding: 12px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    td.actions { text-align: right; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--accent-soft); color: var(--accent-dark); }
+    .badge.user { background: var(--paper); color: var(--muted); border: 1px solid var(--rule); }
+
+    /* ---------- Small screens ---------- */
+    @media (max-width: 820px) {
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 20; transform: translateX(-100%); transition: transform .2s ease; }
+      .app.nav-open .sidebar { transform: none; }
+      .app.nav-open .scrim { display: block; position: fixed; inset: 0; background: rgba(20, 40, 61, .4); z-index: 15; }
+      .menu-btn { display: inline-flex; }
+      .topbar { padding: 12px 16px; }
+      .content { padding: 16px; }
+    }
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading -->
+  <div id="screen-loading" class="center">Checking your account…</div>
+
+  <!-- Login -->
+  <div id="screen-login" class="login hidden">
+    <div class="login-panel">
+      <div class="mark">CSB</div>
+      <h1>CSB All Task</h1>
+      <p class="lead">Log in with your GrayQuest Google account.</p>
+      <div class="account">
+        <div class="k">Signed in as</div>
+        <div class="v" id="login-email">–</div>
+      </div>
+      <button id="btn-login" class="btn btn-primary btn-block">Log in</button>
+      <div id="login-notice"></div>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="screen-app" class="app hidden">
+    <aside class="sidebar">
+      <div class="side-brand"><span class="mark">CSB</span><span>CSB All Task</span></div>
+      <nav class="nav" id="nav" aria-label="Main menu"></nav>
+      <div class="side-foot">
+        <div class="who" id="side-user"></div>
+        <div class="role" id="side-role"></div>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim"></div>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" id="btn-menu" aria-label="Open menu">Menu</button>
+        <h2 id="page-title">Home</h2>
+        <button class="btn btn-ghost" id="btn-logout">Log out</button>
+      </header>
+      <section class="content" id="page-body"></section>
+    </div>
+  </div>
+
+  <?!= include('LsUpdation') ?>
+
+  <script>
+    /* ===================== Config ===================== */
+
+    const MODULES = [
+      { id: 'ls-updation', label: 'LS UPDATION' },
+      { id: 'recon', label: 'RECON' },
+      { id: 'razorpay-transfer', label: 'RAZORPAY TRANSFER' },
+      { id: 'csb-pending-task', label: 'CSB PENDING TASK' },
+      { id: 'csb-mail', label: 'CSB MAIL' },
+      { id: 'csb-notes', label: 'CSB NOTES' },
+      { id: 'fc-dropout', label: 'FC & DROPOUT' },
+      { id: 'noc', label: 'NOC' }
+    ];
+    const ADMIN_PAGES = [{ id: 'user-access', label: 'User Access' }];
+    const HOME_PAGE = { id: 'home', label: 'Home' };
+
+    // Each task page gets its own render function here once it is built.
+    const PAGE_RENDERERS = {
+      'home': renderHome,
+      'ls-updation': window.renderLsUpdation,
+      'user-access': renderUserAccess
+    };
+
+    let SESSION = null;
+
+    /* ===================== Helpers ===================== */
+
+    function $(id) { return document.getElementById(id); }
+
+    function esc(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function cleanError(err) {
+      const msg = err && err.message ? err.message : String(err);
+      return msg.replace(/^(Exception|Error):\s*/i, '');
+    }
+
+    function setNotice(id, type, text) {
+      const box = $(id);
+      box.className = 'notice ' + type;
+      box.textContent = text;
+    }
+
+    function clearNotice(id) {
+      const box = $(id);
+      box.className = '';
+      box.textContent = '';
+    }
+
+    function showScreen(name) {
+      ['loading', 'login', 'app'].forEach(function (s) {
+        $('screen-' + s).classList.toggle('hidden', s !== name);
+      });
+    }
+
+    /* ===================== Login ===================== */
+
+    function checkSession() {
+      showScreen('loading');
+      google.script.run
+        .withSuccessHandler(renderLogin)
+        .withFailureHandler(function (err) {
+          renderLogin({ email: '', allowed: false, reason: 'ERROR' });
+          setNotice('login-notice', 'error', 'Could not check your account: ' + cleanError(err));
+        })
+        .getSession();
+    }
+
+    function renderLogin(session) {
+      SESSION = session;
+      showScreen('login');
+      clearNotice('login-notice');
+      $('login-email').textContent = session.email || 'Not detected';
+      const btn = $('btn-login');
+
+      if (session.reason === 'ERROR') {
+        btn.disabled = true;
+      } else if (!session.email) {
+        btn.disabled = true;
+        setNotice('login-notice', 'error', 'Your Google account could not be detected. Open this page while signed in with your @grayquest.com account.');
+      } else if (!session.allowed) {
+        btn.disabled = true;
+        setNotice('login-notice', 'error', 'You do not have access yet. Ask ' + session.adminEmail + ' to give you access.');
+      } else {
+        btn.disabled = false;
+        btn.focus();
+      }
+    }
+
+    function logIn() {
+      if (!SESSION || !SESSION.allowed) return;
+      $('side-user').textContent = SESSION.name || SESSION.email;
+      $('side-role').textContent = SESSION.isAdmin ? 'Admin' : 'User';
+      buildNav();
+      showScreen('app');
+      openPage('home');
+    }
+
+    function logOut() {
+      closeNav();
+      checkSession();
+    }
+
+    /* ===================== Navigation ===================== */
+
+    function buildNav() {
+      let html = '<button data-page="home">Home</button>';
+      html += '<div class="nav-group">Tasks</div>';
+      html += MODULES.map(function (m) {
+        return '<button data-page="' + m.id + '">' + esc(m.label) + '</button>';
+      }).join('');
+      if (SESSION.isAdmin) {
+        html += '<div class="nav-group">Admin</div>';
+        html += ADMIN_PAGES.map(function (p) {
+          return '<button data-page="' + p.id + '">' + esc(p.label) + '</button>';
+        }).join('');
+      }
+      $('nav').innerHTML = html;
+      $('nav').querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () { openPage(b.dataset.page); });
+      });
+    }
+
+    function openPage(id) {
+      const pages = [HOME_PAGE].concat(MODULES, SESSION.isAdmin ? ADMIN_PAGES : []);
+      const page = pages.find(function (p) { return p.id === id; }) || HOME_PAGE;
+
+      $('nav').querySelectorAll('button').forEach(function (b) {
+        b.classList.toggle('active', b.dataset.page === page.id);
+      });
+      $('page-title').textContent = page.label;
+      (PAGE_RENDERERS[page.id] || renderPlaceholder)($('page-body'), page);
+      closeNav();
+    }
+
+    function toggleNav() { $('screen-app').classList.toggle('nav-open'); }
+    function closeNav() { $('screen-app').classList.remove('nav-open'); }
+
+    /* ===================== Pages ===================== */
+
+    function renderHome(body) {
+      body.innerHTML =
+        '<div class="panel">' +
+          '<h3>Welcome, ' + esc(SESSION.name || SESSION.email) + '</h3>' +
+          '<p class="muted">Pick a task from the menu on the left.</p>' +
+        '</div>';
+    }
+
+    function renderPlaceholder(body, page) {
+      body.innerHTML =
+        '<div class="panel">' +
+          '<h3>' + esc(page.label) + '</h3>' +
+          '<p class="muted">This task is not set up yet. Its tools will show here once it is built.</p>' +
+        '</div>';
+    }
+
+    /* ---------- User access (admin only) ---------- */
+
+    function renderUserAccess(body) {
+      body.innerHTML =
+        '<div class="panel">' +
+          '<h3>Give access</h3>' +
+          '<p class="muted">Only @grayquest.com accounts can be added. People you add can open all task pages.</p>' +
+          '<div class="form-row">' +
+            '<div><label for="ua-email">Email</label><input id="ua-email" type="email" placeholder="name@grayquest.com" autocomplete="off"></div>' +
+            '<div><label for="ua-name">Name (optional)</label><input id="ua-name" type="text" placeholder="Full name" autocomplete="off"></div>' +
+            '<button id="ua-add" class="btn btn-primary">Give access</button>' +
+          '</div>' +
+          '<div id="ua-notice"></div>' +
+          '<div class="table-wrap"><table>' +
+            '<thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Added on</th><th></th></tr></thead>' +
+            '<tbody id="ua-rows"><tr><td colspan="5" class="muted">Loading users…</td></tr></tbody>' +
+          '</table></div>' +
+        '</div>';
+
+      $('ua-add').addEventListener('click', addUserClick);
+      ['ua-email', 'ua-name'].forEach(function (id) {
+        $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') addUserClick(); });
+      });
+      $('ua-rows').addEventListener('click', function (e) {
+        const btn = e.target.closest('button[data-remove]');
+        if (btn) removeUserClick(btn);
+      });
+      loadUsers();
+    }
+
+    function loadUsers() {
+      google.script.run
+        .withSuccessHandler(renderUserRows)
+        .withFailureHandler(function (err) { setNotice('ua-notice', 'error', cleanError(err)); })
+        .listUsers();
+    }
+
+    function renderUserRows(users) {
+      let html =
+        '<tr><td>–</td><td>' + esc(SESSION.adminEmail) + '</td>' +
+        '<td><span class="badge">Admin</span></td><td>–</td><td></td></tr>';
+      html += users.map(function (u) {
+        return '<tr>' +
+          '<td>' + esc(u.name || '–') + '</td>' +
+          '<td>' + esc(u.email) + '</td>' +
+          '<td><span class="badge user">User</span></td>' +
+          '<td>' + esc(u.addedOn || '–') + '</td>' +
+          '<td class="actions"><button class="btn-link-danger" data-remove="' + esc(u.email) + '">Remove</button></td>' +
+        '</tr>';
+      }).join('');
+      $('ua-rows').innerHTML = html;
+    }
+
+    function addUserClick() {
+      const email = $('ua-email').value.trim().toLowerCase();
+      const name = $('ua-name').value.trim();
+      if (!email) {
+        setNotice('ua-notice', 'error', 'Enter an email address.');
+        return;
+      }
+      const btn = $('ua-add');
+      btn.disabled = true;
+      btn.textContent = 'Giving access…';
+      google.script.run
+        .withSuccessHandler(function (users) {
+          btn.disabled = false;
+          btn.textContent = 'Give access';
+          $('ua-email').value = '';
+          $('ua-name').value = '';
+          setNotice('ua-notice', 'ok', email + ' now has access.');
+          renderUserRows(users);
+        })
+        .withFailureHandler(function (err) {
+          btn.disabled = false;
+          btn.textContent = 'Give access';
+          setNotice('ua-notice', 'error', cleanError(err));
+        })
+        .addUser(email, name);
+    }
+
+    // First click arms the button, second click within 4 seconds removes access.
+    function removeUserClick(btn) {
+      const email = btn.dataset.remove;
+      if (!btn.classList.contains('armed')) {
+        btn.classList.add('armed');
+        btn.textContent = 'Confirm remove';
+        setTimeout(function () {
+          if (document.body.contains(btn)) {
+            btn.classList.remove('armed');
+            btn.textContent = 'Remove';
+          }
+        }, 4000);
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Removing…';
+      google.script.run
+        .withSuccessHandler(function (users) {
+          setNotice('ua-notice', 'ok', 'Access removed for ' + email + '.');
+          renderUserRows(users);
+        })
+        .withFailureHandler(function (err) {
+          btn.disabled = false;
+          btn.classList.remove('armed');
+          btn.textContent = 'Remove';
+          setNotice('ua-notice', 'error', cleanError(err));
+        })
+        .removeUser(email);
+    }
+
+    /* ===================== Start ===================== */
+
+    $('btn-login').addEventListener('click', logIn);
+    $('btn-logout').addEventListener('click', logOut);
+    $('btn-menu').addEventListener('click', toggleNav);
+    $('scrim').addEventListener('click', closeNav);
+    window.addEventListener('load', checkSession);
+  </script>
+</body>
+</html>
